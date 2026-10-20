@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SafePay Vanilla — Demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1c2430;
+      --muted: #5c6778;
+      --line: #d5dbe3;
+      --paper: #eef2f6;
+      --card: #ffffff;
+      --accent: #1a4f8b;
+      --accent-ink: #ffffff;
+      --danger: #9b2c2c;
+      --ok: #0f6e56;
+      --badge: #dbe7f5;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 80% 50% at 10% -10%, #d4e4f7 0%, transparent 55%),
+        var(--paper);
+    }
+
+    main {
+      width: min(44rem, calc(100% - 2rem));
+      margin: 2rem auto 3rem;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-bottom: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--badge);
+      border-radius: 6px;
+    }
+
+    h1 {
+      margin: 0 0 0.35rem;
+      font-size: 1.75rem;
+      letter-spacing: -0.02em;
+    }
+
+    .lede {
+      margin: 0 0 1.5rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    form, .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .panel {
+      margin-top: 1rem;
+    }
+
+    .panel h2 {
+      margin: 0 0 0.85rem;
+      font-size: 1.05rem;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.9rem 1rem;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    label.wide { grid-column: 1 / -1; }
+
+    input {
+      font: inherit;
+      font-weight: 400;
+      padding: 0.55rem 0.65rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    input:focus {
+      outline: 2px solid #b7cce3;
+      border-color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.1rem;
+    }
+
+    button {
+      font: inherit;
+      font-weight: 600;
+      color: var(--accent-ink);
+      background: var(--accent);
+      border: 0;
+      border-radius: 8px;
+      padding: 0.65rem 1rem;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      color: var(--ink);
+      background: #e8eef5;
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
+    .lookup {
+      display: flex;
+      gap: 0.6rem;
+      align-items: end;
+    }
+
+    .lookup label { flex: 1; }
+
+    .result {
+      margin-top: 1rem;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .result h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1rem;
+    }
+
+    .result.ok h2 { color: var(--ok); }
+    .result.error h2 { color: var(--danger); }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.45rem 0.35rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .empty {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    @media (max-width: 36rem) {
+      .fields { grid-template-columns: 1fr; }
+      label.wide { grid-column: auto; }
+      .lookup { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Vanilla Java · port 8081</span>
+    <h1>SafePay</h1>
+    <p class="lede">
+      Demo UI for the no-Spring API. Submits JSON to <code>POST /transactions</code>,
+      lists with <code>GET /transactions</code>, and looks up by id.
+    </p>
+
+    <form id="transaction-form">
+      <div class="fields">
+        <label>
+          Transaction ID
+          <input name="transactionId" required value="tx-1" autocomplete="off">
+        </label>
+        <label>
+          Customer ID
+          <input name="customerId" required value="c-1" autocomplete="off">
+        </label>
+        <label>
+          Amount
+          <input name="amount" type="number" required step="0.01" value="100.50">
+        </label>
+        <label>
+          Currency
+          <input name="currency" required value="EUR" maxlength="3" autocomplete="off">
+        </label>
+        <label class="wide">
+          Location
+          <input name="location" required value="Berlin" autocomplete="off">
+        </label>
+        <label class="wide">
+          Timestamp
+          <input name="timestamp" type="datetime-local" required step="1" value="2026-10-20T10:00:00">
+        </label>
+      </div>
+      <div class="actions">
+        <button type="submit">Submit transaction</button>
+      </div>
+    </form>
+
+    <section class="panel">
+      <h2>Lookup by id</h2>
+      <div class="lookup">
+        <label>
+          Transaction ID
+          <input id="lookup-id" value="tx-1" autocomplete="off">
+        </label>
+        <button type="button" id="lookup-btn" class="secondary">Get by id</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="actions" style="margin-top: 0; margin-bottom: 0.85rem; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0;">Stored transactions</h2>
+        <button type="button" id="refresh-btn" class="secondary">Refresh list</button>
+      </div>
+      <div id="list-area">
+        <p class="empty">No transactions yet. Submit one above.</p>
+      </div>
+    </section>
+
+    <section id="result" class="result" hidden>
+      <h2 id="result-title"></h2>
+      <pre id="result-body"></pre>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("transaction-form");
+    const result = document.getElementById("result");
+    const resultTitle = document.getElementById("result-title");
+    const resultBody = document.getElementById("result-body");
+    const listArea = document.getElementById("list-area");
+    const submitButton = form.querySelector("button[type='submit']");
+    const refreshBtn = document.getElementById("refresh-btn");
+    const lookupBtn = document.getElementById("lookup-btn");
+    const lookupId = document.getElementById("lookup-id");
+
+    function normalizeTimestamp(value) {
+      const raw = String(value).trim();
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) {
+        return raw + ":00";
+      }
+      return raw;
+    }
+
+    function showResult(ok, title, body) {
+      result.hidden = false;
+      result.className = ok ? "result ok" : "result error";
+      resultTitle.textContent = title;
+      resultBody.textContent = body;
+    }
+
+    function pretty(text) {
+      try {
+        return JSON.stringify(JSON.parse(text), null, 2);
+      } catch (ignored) {
+        return text;
+      }
+    }
+
+    async function refreshList() {
+      try {
+        const response = await fetch("/transactions");
+        const text = await response.text();
+        if (!response.ok) {
+          listArea.innerHTML = "<p class=\"empty\">Could not load list (" + response.status + ").</p>";
+          return;
+        }
+        const items = JSON.parse(text);
+        if (!Array.isArray(items) || items.length === 0) {
+          listArea.innerHTML = "<p class=\"empty\">No transactions yet. Submit one above.</p>";
+          return;
+        }
+        const rows = items.map((tx) =>
+          "<tr>"
+          + "<td>" + escapeHtml(tx.transactionId) + "</td>"
+          + "<td>" + escapeHtml(tx.customerId) + "</td>"
+          + "<td>" + escapeHtml(String(tx.amount)) + " " + escapeHtml(tx.currency) + "</td>"
+          + "<td>" + escapeHtml(tx.location) + "</td>"
+          + "</tr>"
+        ).join("");
+        listArea.innerHTML =
+          "<table><thead><tr>"
+          + "<th>Id</th><th>Customer</th><th>Amount</th><th>Location</th>"
+          + "</tr></thead><tbody>" + rows + "</tbody></table>";
+      } catch (error) {
+        listArea.innerHTML = "<p class=\"empty\">" + escapeHtml(error.message) + "</p>";
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;");
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const payload = {
+        transactionId: data.get("transactionId").trim(),
+        customerId: data.get("customerId").trim(),
+        amount: Number(data.get("amount")),
+        currency: data.get("currency").trim(),
+        location: data.get("location").trim(),
+        timestamp: normalizeTimestamp(data.get("timestamp"))
+      };
+
+      submitButton.disabled = true;
+      try {
+        const response = await fetch("/transactions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const text = await response.text();
+        showResult(
+          response.ok,
+          response.ok ? "Created (" + response.status + ")" : "Rejected (" + response.status + ")",
+          pretty(text) || response.statusText
+        );
+        if (response.ok) {
+          lookupId.value = payload.transactionId;
+          await refreshList();
+        }
+      } catch (error) {
+        showResult(false, "Could not reach the server", error.message);
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+
+    lookupBtn.addEventListener("click", async () => {
+      const id = lookupId.value.trim();
+      if (!id) {
+        showResult(false, "Missing id", "Enter a transaction id.");
+        return;
+      }
+      lookupBtn.disabled = true;
+      try {
+        const response = await fetch("/transactions/" + encodeURIComponent(id));
+        const text = await response.text();
+        showResult(
+          response.ok,
+          response.ok ? "Found" : "Not found (" + response.status + ")",
+          pretty(text) || response.statusText
+        );
+      } catch (error) {
+        showResult(false, "Could not reach the server", error.message);
+      } finally {
+        lookupBtn.disabled = false;
+      }
+    });
+
+    refreshBtn.addEventListener("click", () => refreshList());
+    refreshList();
+  </script>
+</body>
+</html>

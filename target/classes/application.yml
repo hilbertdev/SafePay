@@ -1,0 +1,6 @@
+safepay:
+  risk:
+    threshold: 10000.00
+    high-risk-locations:
+      - "Nigeria"
+      - "Russia"

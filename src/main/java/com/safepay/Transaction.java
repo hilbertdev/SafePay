@@ -29,13 +29,13 @@ public class Transaction {
         this.timestamp = timestamp;
     }
 
-    public Transaction(transactionDto transaction) {
-        this.transactionId = transaction.transactionId;
-        this.customerId = transaction.customerId;
-        this.amount = transaction.amount;
-        this.currency = transaction.currency;
-        this.location = transaction.location;
-        this.timestamp = transaction.timestamp;
+    public Transaction(TransactionDto transaction) {
+        this.transactionId = transaction.transactionId();
+        this.customerId = transaction.customerId();
+        this.amount = transaction.amount();
+        this.currency = transaction.currency();
+        this.location = transaction.location();
+        this.timestamp = transaction.timestamp();
     }
 
     public String getTransactionId() {
