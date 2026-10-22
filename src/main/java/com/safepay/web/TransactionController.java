@@ -60,8 +60,10 @@ public class TransactionController {
     }
 
     @GetMapping
-    public List<Transaction> findAll() {
-        return transactionService.findAll();
+    public List<TransactionRiskResponse> findAll() {
+        return transactionService.findAll().stream()
+                .map(tx -> new TransactionRiskResponse(tx, transactionService.assessRisk(tx)))
+                .toList();
     }
 
     @GetMapping("/{id}")

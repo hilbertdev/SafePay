@@ -1,0 +1,10 @@
+target/
+safepay-vanilla/
+.git/
+.idea/
+*.iml
+.DS_Store
+docs/
+data/*.db
+data/*.mv.db
+data/*.trace.db

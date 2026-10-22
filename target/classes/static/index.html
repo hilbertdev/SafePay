@@ -16,6 +16,10 @@
       --accent-ink: #ffffff;
       --danger: #9b2c2c;
       --ok: #0f6e56;
+      --high-bg: #fde8e8;
+      --high-ink: #9b2c2c;
+      --low-bg: #e6f4ef;
+      --low-ink: #0f6e56;
     }
 
     * { box-sizing: border-box; }
@@ -29,7 +33,7 @@
     }
 
     main {
-      width: min(40rem, calc(100% - 2rem));
+      width: min(56rem, calc(100% - 2rem));
       margin: 2.5rem auto 3rem;
     }
 
@@ -50,7 +54,7 @@
       font-size: 0.92em;
     }
 
-    form, .result {
+    form, .result, .history {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 12px;
@@ -109,13 +113,82 @@
       margin-top: 1rem;
     }
 
-    .result h2 {
+    .result h2,
+    .history h2 {
       margin: 0 0 0.5rem;
       font-size: 1rem;
     }
 
     .result.ok h2 { color: var(--ok); }
     .result.error h2 { color: var(--danger); }
+
+    .history {
+      margin-top: 1.5rem;
+    }
+
+    .history-meta {
+      margin: 0 0 0.85rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.55rem 0.65rem;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    th {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .risk {
+      display: inline-block;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+      padding: 0.2rem 0.45rem;
+      border-radius: 999px;
+    }
+
+    .risk.high {
+      background: var(--high-bg);
+      color: var(--high-ink);
+    }
+
+    .risk.low {
+      background: var(--low-bg);
+      color: var(--low-ink);
+    }
+
+    .empty, .history-error {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .history-error {
+      color: var(--danger);
+    }
 
     pre {
       margin: 0;
@@ -135,7 +208,7 @@
 <body>
   <main>
     <h1>SafePay</h1>
-    <p class="lede">Submit one payment. The form posts JSON to <code>POST /transactions</code> and shows the response.</p>
+    <p class="lede">Submit one payment. The form posts JSON to <code>POST /transactions</code> and shows the response. The history below lists every stored transaction with its risk assessment.</p>
 
     <form id="transaction-form">
       <div class="fields">
@@ -171,6 +244,12 @@
       <h2 id="result-title"></h2>
       <pre id="result-body"></pre>
     </section>
+
+    <section class="history" aria-labelledby="history-title">
+      <h2 id="history-title">Risk assessment history</h2>
+      <p id="history-meta" class="history-meta">Loading…</p>
+      <div id="history-content"></div>
+    </section>
   </main>
 
   <script>
@@ -179,6 +258,72 @@
     const resultTitle = document.getElementById("result-title");
     const resultBody = document.getElementById("result-body");
     const button = form.querySelector("button");
+    const historyMeta = document.getElementById("history-meta");
+    const historyContent = document.getElementById("history-content");
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function formatAmount(amount, currency) {
+      return escapeHtml(amount) + " " + escapeHtml(currency);
+    }
+
+    function riskBadge(risk) {
+      const level = String(risk || "").toUpperCase();
+      const cls = level === "HIGH" ? "high" : "low";
+      return '<span class="risk ' + cls + '">' + escapeHtml(level || "—") + "</span>";
+    }
+
+    function renderHistory(items) {
+      if (!items.length) {
+        historyMeta.textContent = "No transactions stored yet.";
+        historyContent.innerHTML = '<p class="empty">Submit a transaction or import CSV data to build the history.</p>';
+        return;
+      }
+
+      historyMeta.textContent = items.length + " transaction" + (items.length === 1 ? "" : "s") + " assessed.";
+
+      const rows = items.map((item) => {
+        const tx = item.transaction || {};
+        return "<tr>"
+          + "<td>" + escapeHtml(tx.transactionId || "") + "</td>"
+          + "<td>" + escapeHtml(tx.customerId || "") + "</td>"
+          + "<td>" + formatAmount(tx.amount ?? "", tx.currency || "") + "</td>"
+          + "<td>" + escapeHtml(tx.location || "") + "</td>"
+          + "<td>" + escapeHtml(tx.timestamp || "") + "</td>"
+          + "<td>" + riskBadge(item.risk) + "</td>"
+          + "</tr>";
+      }).join("");
+
+      historyContent.innerHTML =
+        '<div class="table-wrap"><table>'
+        + "<thead><tr>"
+        + "<th>ID</th><th>Customer</th><th>Amount</th><th>Location</th><th>Timestamp</th><th>Risk</th>"
+        + "</tr></thead>"
+        + "<tbody>" + rows + "</tbody>"
+        + "</table></div>";
+    }
+
+    async function loadHistory() {
+      historyMeta.textContent = "Loading…";
+      try {
+        const response = await fetch("/transactions");
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
+        const items = await response.json();
+        renderHistory(Array.isArray(items) ? items : []);
+      } catch (error) {
+        historyMeta.textContent = "";
+        historyContent.innerHTML =
+          '<p class="history-error">Could not load history: ' + escapeHtml(error.message) + "</p>";
+      }
+    }
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -214,6 +359,9 @@
           ? "Accepted"
           : "Rejected (" + response.status + ")";
         resultBody.textContent = shown;
+        if (response.ok) {
+          await loadHistory();
+        }
       } catch (error) {
         result.hidden = false;
         result.className = "result error";
@@ -223,6 +371,8 @@
         button.disabled = false;
       }
     });
+
+    loadHistory();
   </script>
 </body>
 </html>

@@ -8,7 +8,7 @@ safepay:
 
 spring:
   datasource:
-    url: jdbc:h2:file:./data/safepay-db
+    url: jdbc:h2:file:./data/safepay-db-version2
   jpa:
     hibernate:
       ddl-auto: update
