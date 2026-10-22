@@ -1,4 +1,4 @@
-package com.safepay;
+package com.safepay.infrastructure;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,7 +10,10 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.safepay.domain.Transaction;
+
 /**
+ * Ring: infrastructure
  * Reads the transaction CSV file and maps each parsable row to a Transaction.
  * Rows that cannot be converted are recorded as errors so the other rows can still be imported.
  *

@@ -1,4 +1,4 @@
-package com.safepay;
+package com.safepay.infrastructure;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
+ * Ring: infrastructure
  * Spring Boot binds the safepay.risk section from application.yml to this class at startup
  * (like {@code IOptions<T>} in .NET).
  */

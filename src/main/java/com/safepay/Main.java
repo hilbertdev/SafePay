@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
+import com.safepay.domain.Transaction;
+import com.safepay.infrastructure.CsvTransactionReader;
+
 /**
  * Starts the transaction import and prints the results.
  */

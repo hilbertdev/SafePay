@@ -1,3 +1,14 @@
+error id: file://<WORKSPACE>/src/main/java/com/safepay/TransactionController.java:_empty_/TransactionService#assessRisk#
+file://<WORKSPACE>/src/main/java/com/safepay/TransactionController.java
+empty definition using pc, found symbol in pc: _empty_/TransactionService#assessRisk#
+empty definition using semanticdb
+empty definition using fallback
+non-local guesses:
+
+offset: 1251
+uri: file://<WORKSPACE>/src/main/java/com/safepay/TransactionController.java
+text:
+```scala
 package com.safepay;
 
 import java.util.List;
@@ -31,7 +42,7 @@ public class TransactionController {
     @PostMapping
     public ResponseEntity<TransactionRiskResponse> create(@RequestBody TransactionDto transactionDto) {
         Transaction saved = transactionService.save(new Transaction(transactionDto));
-        String risk = transactionService.assessRisk(saved);
+        String risk = transactionService.asse@@ssRisk(saved);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new TransactionRiskResponse(saved, risk));
     }
@@ -47,3 +58,10 @@ public class TransactionController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }
+
+```
+
+
+#### Short summary: 
+
+empty definition using pc, found symbol in pc: _empty_/TransactionService#assessRisk#

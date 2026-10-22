@@ -1,9 +1,10 @@
-package com.safepay;
+package com.safepay.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
+ * Ring: domain
  * One payment that was read from the CSV file and converted into Java types.
  */
 public class Transaction {
@@ -27,15 +28,6 @@ public class Transaction {
         this.currency = currency;
         this.location = location;
         this.timestamp = timestamp;
-    }
-
-    public Transaction(TransactionDto transaction) {
-        this.transactionId = transaction.transactionId();
-        this.customerId = transaction.customerId();
-        this.amount = transaction.amount();
-        this.currency = transaction.currency();
-        this.location = transaction.location();
-        this.timestamp = transaction.timestamp();
     }
 
     public String getTransactionId() {

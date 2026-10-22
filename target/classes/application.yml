@@ -4,3 +4,14 @@ safepay:
     high-risk-locations:
       - "Nigeria"
       - "Russia"
+      - "Mars"
+
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/safepay-db
+  jpa:
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: true
