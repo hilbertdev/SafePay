@@ -28,14 +28,14 @@ mvn spring-boot:run
 
 Then open [http://localhost:8080/](http://localhost:8080/).
 
+**Swagger UI (demo):** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)  
+OpenAPI JSON: [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+
 Optional CSV import:
 
 ```bash
 curl -s -X POST http://localhost:8080/transactions/import
 ```
-
-H2 console: [http://localhost:8080/h2-console](http://localhost:8080/h2-console)  
-JDBC URL: `jdbc:h2:file:./data/safepay-db` · User: `sa` · Password: *(blank)*
 
 ---
 

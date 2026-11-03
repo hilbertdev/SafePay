@@ -1,0 +1,9 @@
+CREATE ROLE "safepay-api" WITH LOGIN PASSWORD 'admin';
+ALTER DATABASE safepay OWNER TO "safepay-api";
+
+\c safepay
+GRANT ALL ON SCHEMA public TO "safepay-api";
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT ALL ON TABLES TO "safepay-api";
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT ALL ON SEQUENCES TO "safepay-api";

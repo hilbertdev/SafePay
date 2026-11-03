@@ -18,12 +18,16 @@ import com.safepay.application.TransactionService;
 import com.safepay.domain.Transaction;
 import com.safepay.infrastructure.CsvTransactionReader;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * Ring: web adapter
  * Controller layer: HTTP endpoints for transactions.
  */
 @RestController
 @RequestMapping("/transactions")
+@Tag(name = "Transactions", description = "Submit, list, look up, and import transactions")
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -52,6 +56,7 @@ public class TransactionController {
     }
 
     @PostMapping
+    @Operation(summary = "Create a transaction", description = "Stores the transaction and returns it with a risk assessment.")
     public ResponseEntity<TransactionRiskResponse> create(@RequestBody TransactionDto transactionDto) {
         Transaction saved = transactionService.save(toDomain(transactionDto));
         String risk = transactionService.assessRisk(saved);
@@ -60,6 +65,7 @@ public class TransactionController {
     }
 
     @GetMapping
+    @Operation(summary = "List transactions", description = "Returns every stored transaction with its risk assessment.")
     public List<TransactionRiskResponse> findAll() {
         return transactionService.findAll().stream()
                 .map(tx -> new TransactionRiskResponse(tx, transactionService.assessRisk(tx)))
@@ -67,6 +73,7 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get a transaction by ID")
     public Transaction findById(@PathVariable String id) {
         return transactionService.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -76,6 +83,7 @@ public class TransactionController {
      * Reading the file is infrastructure; deciding what to save is the application service.
      */
     @PostMapping("/import")
+    @Operation(summary = "Import transactions from CSV", description = "Reads data/transactions.csv and saves each row.")
     public ImportResult importCsv() throws IOException {
         CsvTransactionReader reader = new CsvTransactionReader();
         List<Transaction> transactions = reader.read(Path.of("data/transactions.csv"));

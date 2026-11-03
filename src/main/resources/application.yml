@@ -2,16 +2,20 @@ safepay:
   risk:
     threshold: 10000.00
     high-risk-locations:
-      - "Nigeria"
       - "Russia"
       - "Mars"
 
 spring:
   datasource:
-    url: jdbc:h2:file:./data/safepay-db-version2
+    url: jdbc:postgresql://localhost:5432/safepay
+    username: safepay-api
+    password: admin
   jpa:
     hibernate:
       ddl-auto: update
-  h2:
-    console:
-      enabled: true
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+

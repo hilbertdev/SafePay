@@ -10,5 +10,6 @@
 /Users/hilbertmu/source/SafePay_temp/SafePay/src/main/java/com/safepay/infrastructure/TransactionEntity.java
 /Users/hilbertmu/source/SafePay_temp/SafePay/src/main/java/com/safepay/infrastructure/TransactionJpaRepository.java
 /Users/hilbertmu/source/SafePay_temp/SafePay/src/main/java/com/safepay/infrastructure/TransactionRepositoryAdapter.java
+/Users/hilbertmu/source/SafePay_temp/SafePay/src/main/java/com/safepay/web/OpenApiConfig.java
 /Users/hilbertmu/source/SafePay_temp/SafePay/src/main/java/com/safepay/web/TransactionController.java
 /Users/hilbertmu/source/SafePay_temp/SafePay/src/main/java/com/safepay/web/TransactionDto.java

@@ -1,0 +1,12 @@
+services:
+  postgres:
+    build: ./docker/postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - safepay-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  safepay-postgres-data:
